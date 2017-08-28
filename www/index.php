@@ -90,7 +90,6 @@ try {
     } else {
 
         if (empty($requestParts[4])) {
-
             if ($controller->request->getIsPostRequest()) {
                 // controller PUT
                 $actionMethod = "actionCreate";
