@@ -88,7 +88,9 @@ try {
     if (!empty($requestParts[4]) && !ctype_digit($requestParts[4])) {
         $actionMethod = "action" . ucfirst($requestParts[4]);
     } else {
+
         if (empty($requestParts[4])) {
+
             if ($controller->request->getIsPostRequest()) {
                 // controller PUT
                 $actionMethod = "actionCreate";
