@@ -90,6 +90,7 @@ class App
         $baseUrl = ($_SERVER['HTTPS'] === 'off' ? 'http' : 'https')
             . "://"
             . $_SERVER['HTTP_HOST'];
+        
         $this->request = (object) [
             "requestUri" => $_SERVER['REQUEST_URI'],
             "baseUrl" => $baseUrl,
