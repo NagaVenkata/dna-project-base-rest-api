@@ -46,6 +46,9 @@ trait RestApiPropelObjectControllerTrait
         // Make sure the filter parameters are allowed for rest-filtering
         if (!empty($filterBy) && is_array($filterBy)) {
             foreach ($filterBy as $key => $val) {
+                if($key == 'facebook_tab_enabled') {
+                    $query->where($key . ' IS NULL');
+                }
                 if (!is_null($this->request->getParam($val))) {
                     // Add model name if no relation is specified
                     if (stripos($key, '.') === false) {
