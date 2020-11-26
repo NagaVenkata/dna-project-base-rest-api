@@ -33,6 +33,7 @@ trait RestApiPropelObjectControllerTrait
     public $limit = 'Foo_limit';
     //public $offset = 'Foo_offset';
     public $order = 'Foo_order';
+    public $info = 'Foo_info';
     public $defaultLimit = 10;
     public $nullString = 'null';
 
@@ -42,8 +43,31 @@ trait RestApiPropelObjectControllerTrait
      */
     protected function applyFilterQuery($filterBy, &$query)
     {
-
         // Make sure the filter parameters are allowed for rest-filtering
+        $orderParam = $this->request->getParam($this->order);
+
+        $orderByStatements = explode(",", $orderParam);
+        foreach ($orderByStatements as $orderByStatement) {
+
+            $filter_key = null;
+
+            if (stripos($orderByStatement, ' priority1') !== false) {
+                $columnName = str_ireplace(' priority1', '', $orderByStatement);
+                $filter_key = 'priority1';
+            }
+
+            if (stripos($orderByStatement, ' priority2') !== false) {
+                $columnName = str_ireplace(' priority2', '', $orderByStatement);
+                $filter_key = 'priority2';
+            }
+
+            if (stripos($orderByStatement, ' priority3') !== false) {
+                $columnName = str_ireplace(' priority3', '', $orderByStatement);
+                $filter_key = 'priority3';
+            }
+
+        }
+            
         if (!empty($filterBy) && is_array($filterBy)) {
             foreach ($filterBy as $key => $val) {
                 if($key == 'facebook_tab_enabled') {
@@ -66,6 +90,14 @@ trait RestApiPropelObjectControllerTrait
             }
         }
 
+        if(!empty($filter_key)) {
+            if($filter_key != "priority1") {
+                $query->where("info='" . $filter_key . "'");
+            } else {
+                $query->where("info='" . $filter_key . "'" . " OR info IS NULL");
+            }
+        }
+
     }
 
     /**
@@ -85,35 +117,39 @@ trait RestApiPropelObjectControllerTrait
         $page = (int) $this->request->getParam($this->page) - 1;
         $c->offset = ($offset = $limit * $page) ? $offset : 0;
         */
+        
 
         $orderParam = $this->request->getParam($this->order);
 
+        
         if (!empty($orderParam)) {
 
             // Split into propel syntax, for instance 'Foo.official_ordinal DESC, Bar.ordinal'
             $orderByStatements = explode(",", $orderParam);
             foreach ($orderByStatements as $orderByStatement) {
                 // Handle DESC/ASC
-                $order = null;
-                if (stripos($orderByStatement, ' desc') !== false) {
-                    $columnName = str_ireplace(' desc', '', $orderByStatement);
-                    $order = 'desc';
-                } elseif (stripos($orderByStatement, ' asc') !== false) {
-                    $columnName = str_ireplace(' asc', '', $orderByStatement);
-                    $order = 'asc';
-                } else {
-                    $columnName = $orderByStatement;
-                }
-                // Handle calculated columns
-                if (stripos($columnName, ' is null') !== false) {
-                    $query->withColumn($columnName, md5($columnName));
-                    $columnName = md5($columnName);
-                }
-                if ($order) {
-                    $query->orderBy(trim($columnName), $order);
-                } else {
-                    $query->orderBy(trim($columnName));
-                }
+                if(stripos($orderByStatement, 'Campaign.info') === false) {
+                    $order = null;
+                    if (stripos($orderByStatement, ' desc') !== false) {
+                        $columnName = str_ireplace(' desc', '', $orderByStatement);
+                        $order = 'desc';
+                    } elseif (stripos($orderByStatement, ' asc') !== false) {
+                        $columnName = str_ireplace(' asc', '', $orderByStatement);
+                        $order = 'asc';
+                    } else {
+                        $columnName = $orderByStatement;
+                    }
+                    // Handle calculated columns
+                    if (stripos($columnName, ' is null') !== false) {
+                        $query->withColumn($columnName, md5($columnName));
+                        $columnName = md5($columnName);
+                    }
+                    if ($order) {
+                        $query->orderBy(trim($columnName), $order);
+                    }else {
+                        $query->orderBy(trim($columnName));
+                    }
+                }    
             }
 
         }
