@@ -92,9 +92,9 @@ trait RestApiPropelObjectControllerTrait
 
         if(!empty($filter_key)) {
             if($filter_key != "priority1") {
-                $query->where("info='" . $filter_key . "'");
+                $query->where("info='" . $filter_key . "'" . " AND facebook_tab_enabled IS NULL");
             } else {
-                $query->where("info='" . $filter_key . "'" . " OR info IS NULL");
+                $query->where("info='" . $filter_key . "'" . " OR info IS NULL AND facebook_tab_enabled IS NULL");
             }
         }
 
