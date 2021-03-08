@@ -43,15 +43,45 @@ trait RestApiPropelObjectControllerTrait
      */
     protected function applyFilterQuery($filterBy, &$query)
     {
+
+        //$dirName = array("priority1", "priority2", "priority3");
+        $dirName = \propel\models\CategoryQuery::create()->select(array('name'))
+                                                         ->find()
+                                                         ->toArray();
         // Make sure the filter parameters are allowed for rest-filtering
         $orderParam = $this->request->getParam($this->order);
 
         $orderByStatements = explode(",", $orderParam);
+
+
+
         foreach ($orderByStatements as $orderByStatement) {
 
             $filter_key = null;
 
-            if (stripos($orderByStatement, ' priority1') !== false) {
+            if(stripos($orderByStatement, 'Campaign.info') !== false) {
+
+                $dir_key = explode(" ", $orderByStatement)[2];
+
+                if(in_array($dir_key, $dirName)) {
+
+                    /*$columnName = str_ireplace(' priority1', '', $orderByStatement);
+                    $filter_key = 'priority1';*/
+                    $filter_key = $dir_key;
+                }
+
+            }
+
+            /*if(array_search($orderByStatement, $dirName)) {
+
+                /*$columnName = str_ireplace(' priority1', '', $orderByStatement);
+                $filter_key = 'priority1';
+                print_r($orderByStatement);
+                print_r($dirName[array_search($orderByStatement, $dirName)]);
+                $filter_key = $dirName[array_search($orderByStatement, $dirName)];
+            }
+
+            /*if (stripos($orderByStatement, ' priority1') !== false) {
                 $columnName = str_ireplace(' priority1', '', $orderByStatement);
                 $filter_key = 'priority1';
             }
@@ -64,7 +94,7 @@ trait RestApiPropelObjectControllerTrait
             if (stripos($orderByStatement, ' priority3') !== false) {
                 $columnName = str_ireplace(' priority3', '', $orderByStatement);
                 $filter_key = 'priority3';
-            }
+            }*/
 
         }
             
@@ -208,6 +238,17 @@ trait RestApiPropelObjectControllerTrait
             $pageSize = $this->defaultLimit;
         }
 
+        $directories_names = array();   
+
+        
+        $folders = \propel\models\CategoryQuery::create()->find();
+
+        foreach ($folders as $folder) { 
+            
+            array_push($directories_names, array('id' => $folder->getId(),
+                                                'name' => $folder->getName()));
+        }
+
         // Pager
         $models = $query->paginate($page, $pageSize);
 
@@ -219,7 +260,8 @@ trait RestApiPropelObjectControllerTrait
                 "getFirstIndex" => (int) $models->getFirstIndex(),
                 "getLastIndex" => (int) $models->getLastIndex(),
                 "currentPage" => (int) $models->getPage(),
-                "perPage" => (int) $models->getMaxPerPage()
+                "perPage" => (int) $models->getMaxPerPage(),
+                'attributes' => $directories_names,
             ],
         );
 
