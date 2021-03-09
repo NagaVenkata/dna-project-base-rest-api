@@ -126,7 +126,9 @@ trait RestApiPropelObjectControllerTrait
             } else {
                 $query->where("info='" . $filter_key . "'" . " OR info IS NULL AND facebook_tab_enabled IS NULL");
             }
-        }
+        } else {
+            $query->where("(info='priority1' OR info IS NULL) AND facebook_tab_enabled IS NULL");
+        } 
 
     }
 
