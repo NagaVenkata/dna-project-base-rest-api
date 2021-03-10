@@ -126,7 +126,7 @@ trait RestApiPropelObjectControllerTrait
             } else {
                 $query->where("info='" . $filter_key . "'" . " OR info IS NULL AND facebook_tab_enabled IS NULL");
             }
-        } else {
+        } else if(!empty($orderParam)){
             $query->where("(info='priority1' OR info IS NULL) AND facebook_tab_enabled IS NULL");
         } 
 
@@ -246,9 +246,11 @@ trait RestApiPropelObjectControllerTrait
         $folders = \propel\models\CategoryQuery::create()->find();
 
         foreach ($folders as $folder) { 
-            
+            $campaign_count = \propel\models\CampaignQuery::create()->filterByInfo($folder->getName())
+                                                                    ->count();    
             array_push($directories_names, array('id' => $folder->getId(),
-                                                'name' => $folder->getName()));
+                                                'name' => $folder->getName(),
+                                                'campaign_count' => $campaign_count));
         }
 
         // Pager
