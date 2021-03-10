@@ -55,7 +55,8 @@ trait RestApiPropelObjectControllerTrait
 
         $campaign_info_found = false;
 
-        if(in_array('Campaign.info', $orderByStatements)) {
+        
+        if (get_class($this->getModel()) == 'propel\models\Campaign') {
 
             $campaign_info_found  = true;
         }
