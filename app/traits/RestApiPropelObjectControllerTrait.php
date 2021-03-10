@@ -53,6 +53,13 @@ trait RestApiPropelObjectControllerTrait
 
         $orderByStatements = explode(",", $orderParam);
 
+        $campaign_info_found = false;
+
+        if(in_array('Campaign.info', $orderByStatements)) {
+
+            $campaign_info_found  = true;
+        }
+
 
 
         foreach ($orderByStatements as $orderByStatement) {
@@ -126,7 +133,7 @@ trait RestApiPropelObjectControllerTrait
             } else {
                 $query->where("info='" . $filter_key . "'" . " OR info IS NULL AND facebook_tab_enabled IS NULL");
             }
-        } else if(!empty($orderParam)){
+        } else if($campaign_info_found){
             $query->where("(info='priority1' OR info IS NULL) AND facebook_tab_enabled IS NULL");
         } 
 
