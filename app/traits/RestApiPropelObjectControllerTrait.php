@@ -37,12 +37,16 @@ trait RestApiPropelObjectControllerTrait
     public $defaultLimit = 10;
     public $nullString = 'null';
 
+    public $time_taken = null;
+
     /**
      * @param $filterBy
      * @param \Propel\Runtime\ActiveQuery\ModelCriteria $query
      */
     protected function applyFilterQuery($filterBy, &$query)
     {
+
+        $start_time = microtime(true); 
 
         //$dirName = array("priority1", "priority2", "priority3");
         $dirName = \propel\models\CategoryQuery::create()->select(array('name'))
@@ -137,6 +141,13 @@ trait RestApiPropelObjectControllerTrait
         } else if($campaign_info_found){
             $query->where("(info='priority1' OR info IS NULL) AND facebook_tab_enabled IS NULL");
         } 
+
+        $end_time = microtime(true); 
+  
+        // Calculate the script execution time 
+        $this->time_taken = ($end_time - $start_time); 
+  
+        //echo " It takes ".$execution_time." seconds to execute the script";
 
     }
 
@@ -274,6 +285,7 @@ trait RestApiPropelObjectControllerTrait
                 "currentPage" => (int) $models->getPage(),
                 "perPage" => (int) $models->getMaxPerPage(),
                 'attributes' => $directories_names,
+                'time_taken' => $this->time_taken,
             ],
         );
 
