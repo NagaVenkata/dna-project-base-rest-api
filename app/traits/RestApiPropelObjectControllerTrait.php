@@ -46,8 +46,6 @@ trait RestApiPropelObjectControllerTrait
     protected function applyFilterQuery($filterBy, &$query)
     {
 
-        $start_time = microtime(true); 
-
         //$dirName = array("priority1", "priority2", "priority3");
         $dirName = \propel\models\CategoryQuery::create()->select(array('name'))
                                                          ->find()
@@ -142,13 +140,6 @@ trait RestApiPropelObjectControllerTrait
             $query->where("(info='priority1' OR info IS NULL) AND facebook_tab_enabled IS NULL");
         } 
 
-        $end_time = microtime(true); 
-  
-        // Calculate the script execution time 
-        $this->time_taken = ($end_time - $start_time); 
-  
-        //echo " It takes ".$execution_time." seconds to execute the script";
-
     }
 
     /**
@@ -219,6 +210,8 @@ trait RestApiPropelObjectControllerTrait
     protected function getPaginatedListActionResults($model)
     {
 
+        $start_time = microtime(true); 
+
         // Get list action configuration from controller list action configuration
         $actions = $this->actions();
         $params = $actions["list"];
@@ -274,6 +267,8 @@ trait RestApiPropelObjectControllerTrait
 
         // Pager
         $models = $query->paginate($page, $pageSize);
+  
+        //echo " It takes ".$execution_time." seconds to execute the script";
 
         $result = array(
             "items" => [],
@@ -285,7 +280,7 @@ trait RestApiPropelObjectControllerTrait
                 "currentPage" => (int) $models->getPage(),
                 "perPage" => (int) $models->getMaxPerPage(),
                 'attributes' => $directories_names,
-                'time_taken' => $this->time_taken,
+                /*'time_taken' => $this->time_taken,*/
             ],
         );
 
@@ -298,6 +293,12 @@ trait RestApiPropelObjectControllerTrait
                 $result["items"][] = $restApiModelClass::getApiAttributes($item);
             }
         }
+
+        $end_time = microtime(true); 
+        // Calculate the script execution time 
+        $this->time_taken = ($end_time - $start_time); 
+
+        array_push($result["_meta"], ['time_taken' => $this->time_taken]);
 
         // Invoke hook for controller to modify the response, for instance in order to specify additional metadata about the collection
         $this->beforeReturningPaginatedListActionResults($result, $models, $query);
