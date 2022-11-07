@@ -290,7 +290,7 @@ trait RestApiPropelObjectControllerTrait
         if ($models) {
             foreach ($models as $item) {
                 $restApiModelClass = $this->_modelName;
-                $result["items"][] = $restApiModelClass::getApiAttributes($item);
+                $result["items"][] = $restApiModelClass::getNewApiAttributes($item);
             }
         }
 
