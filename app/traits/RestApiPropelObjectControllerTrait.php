@@ -280,7 +280,7 @@ trait RestApiPropelObjectControllerTrait
                 "currentPage" => (int) $models->getPage(),
                 "perPage" => (int) $models->getMaxPerPage(),
                 'attributes' => $directories_names,
-                'live_campaigns' => \propel\models\CampaignQuery::create()->filterByCampaignLiveEnabled(1)
+                'live_campaigns' => \propel\models\CampaignQuery::create()->filterByRegistrationAgeFieldIsRequired(1)
                                                                                                 ->find()
                                                                                                 ->toArray(),
                 /*'time_taken' => $this->time_taken,*/
