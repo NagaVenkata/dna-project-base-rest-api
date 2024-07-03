@@ -47,16 +47,16 @@ trait RestApiPropelObjectControllerTrait
     {
 
         //$dirName = array("priority1", "priority2", "priority3");
-        $dirName = \propel\models\CategoryQuery::create()->select(array('name'))
+
+        /*$dirName = \propel\models\CategoryQuery::create()->select(array('name'))
                                                          ->find()
-                                                         ->toArray();
+                                                         ->toArray();*/
         // Make sure the filter parameters are allowed for rest-filtering
         $orderParam = $this->request->getParam($this->order);
 
         $orderByStatements = explode(",", $orderParam);
 
         $campaign_info_found = false;
-
         
         if (get_class($this->getModel()) == 'propel\models\Campaign') {
 
@@ -64,6 +64,7 @@ trait RestApiPropelObjectControllerTrait
         }
 
 
+        $dir_key = null;
 
         foreach ($orderByStatements as $orderByStatement) {
 
@@ -73,12 +74,10 @@ trait RestApiPropelObjectControllerTrait
 
                 $dir_key = explode(" ", $orderByStatement)[2];
 
-                if(in_array($dir_key, $dirName)) {
+                //if(in_array($dir_key, $dirName)) {
 
-                    /*$columnName = str_ireplace(' priority1', '', $orderByStatement);
-                    $filter_key = 'priority1';*/
                     $filter_key = $dir_key;
-                }
+                //}
 
             }
 
@@ -136,7 +135,7 @@ trait RestApiPropelObjectControllerTrait
             } else {
                 $query->where("info='" . $filter_key . "'" . " OR info IS NULL AND facebook_tab_enabled IS NULL");
             }
-        } else if($campaign_info_found){
+        } else if($campaign_info_found) {
             $query->where("(info='priority1' OR info IS NULL) AND facebook_tab_enabled IS NULL");
         } 
 
@@ -254,15 +253,51 @@ trait RestApiPropelObjectControllerTrait
 
         $directories_names = array();   
 
-        
-        $folders = \propel\models\CategoryQuery::create()->find();
+        $orderParam = $this->request->getParam($this->order);
 
-        foreach ($folders as $folder) { 
-            $campaign_count = \propel\models\CampaignQuery::create()->filterByInfo($folder->getName())
+        
+        if (!empty($orderParam)) {
+
+            // Split into propel syntax, for instance 'Foo.official_ordinal DESC, Bar.ordinal'
+            $orderByStatements = explode(",", $orderParam);
+            foreach ($orderByStatements as $orderByStatement) {
+                // Handle DESC/ASC
+                if(stripos($orderByStatement, 'Campaign.info') !== false) {
+                    $dir_key = explode(" ", $orderByStatement)[2];
+                }
+            }
+        }
+
+
+        $folders  = null;
+
+        if(empty($dir_key)) {
+            $folders = \propel\models\CategoryQuery::create()->find();
+
+            foreach ($folders as $folder) { 
+                $campaign_count = \propel\models\CampaignQuery::create()->filterByInfo($folder->getName())
                                                                     ->count();    
-            array_push($directories_names, array('id' => $folder->getId(),
+                array_push($directories_names, array('id' => $folder->getId(),
                                                 'name' => $folder->getName(),
                                                 'campaign_count' => $campaign_count));
+            }
+        } else {
+
+            $sub_folders = \propel\models\EmbedCodeReceiverQuery::create()->findOneByTitle($dir_key);
+
+            if(!empty($sub_folders)) {
+                $sub_folders_names = explode("$", $sub_folders->getCommunicationHistory());
+
+                foreach($sub_folders_names as $folder_name) {
+
+                    $campaign_count = \propel\models\CampaignQuery::create()->filterByInfo($folder_name)
+                                                                       ->count();    
+                    array_push($directories_names, array('id' => $sub_folders->getId(),
+                                                     'name' => $folder_name,
+                                                     'campaign_count' => $campaign_count));
+                }
+            }
+
         }
 
         // Pager
