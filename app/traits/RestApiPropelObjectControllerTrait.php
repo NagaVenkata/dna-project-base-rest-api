@@ -271,34 +271,111 @@ trait RestApiPropelObjectControllerTrait
 
         $folders  = null;
 
-        if(empty($dir_key)) {
+        $folders = \propel\models\CategoryQuery::create()->find();
+        
+        foreach ($folders as $folder) { 
+            $campaign_count = \propel\models\CampaignQuery::create()->filterByInfo($folder->getName())
+                                                                        ->count();
+            array_push($directories_names, array('id' => $folder->getId(),
+                                                     'name' => $folder->getName(),
+                                                     'campaign_count' => $campaign_count));
+        }
+
+        /*if(empty($dir_key)) {
             $folders = \propel\models\CategoryQuery::create()->find();
+            $sub_folders = \propel\models\EmbedCodeReceiverQuery::create()->find();
 
             foreach ($folders as $folder) { 
                 $campaign_count = \propel\models\CampaignQuery::create()->filterByInfo($folder->getName())
-                                                                    ->count();    
+                                                                        ->count();
                 array_push($directories_names, array('id' => $folder->getId(),
-                                                'name' => $folder->getName(),
-                                                'campaign_count' => $campaign_count));
+                                                     'name' => $folder->getName(),
+                                                     'campaign_count' => $campaign_count));
             }
+
+            $sub_folders_names = array();
+
+            $dir_names = array();
+
+            foreach($sub_folders as $sub_folder) {
+
+               if(!empty($sub_folder->getTitle())) {
+
+                    if(!in_array($sub_folder->getTitle()))
+                        array_push($dir_names, $sub_folder->getTitle());
+                    
+                    array_push($sub_folders_names, $sub_folder->getCommunicationHistory());
+                
+                    array_push($directories_names, array('id' => $sub_folder->getId(),
+                                                         'title' => $sub_folder->getTitle(),
+                                                         'sub_folders' => $sub_folders_names,
+                                                         'campaign_count' => $campaign_count));
+                }
+                
+            }
+            $sub_folders_data  =  $sub_folders->toArray();
+
+            $sub_dir_data = [];
+
+            foreach($sub_folders_data as $sub_folder_data => $data) {
+
+                if(!empty($data['Title'])) {
+                    if(array_key_exists('Title', $data)) {
+
+                        $sub_dir_data[$data['Title']][] = $data;
+
+                    }
+                }
+
+            }
+
+            ksort($sub_dir_data);
+            
+            array_push($directories_names, array("id" => "n0",
+                                                 "sub_folders" => $sub_dir_data));
+
         } else {
 
-            $sub_folders = \propel\models\EmbedCodeReceiverQuery::create()->findOneByTitle($dir_key);
+            $sub_folders = \propel\models\EmbedCodeReceiverQuery::create()->filterByTitle($dir_key)
+                                                                          ->find();
+            $sub_sub_folders = \propel\models\EmbedCodeReceiverQuery::create()->find();
+
+            $sub_folders_names = array();
+
+            $campaign_count = 0;
 
             if(!empty($sub_folders)) {
-                $sub_folders_names = explode("$", $sub_folders->getCommunicationHistory());
+                $sub_folders_names = array();
 
-                foreach($sub_folders_names as $folder_name) {
+                foreach($sub_folders as $folder_name) {
 
-                    $campaign_count = \propel\models\CampaignQuery::create()->filterByInfo($folder_name)
-                                                                       ->count();    
-                    array_push($directories_names, array('id' => $sub_folders->getId(),
-                                                     'name' => $folder_name,
-                                                     'campaign_count' => $campaign_count));
+                    $campaign_count = \propel\models\CampaignQuery::create()->filterByInfo($folder_name->getCommunicationHistory())
+                                                                            ->count();    
+                    array_push($directories_names, array('id' => $folder_name->getId(),
+                                                         'name' => $folder_name->getCommunicationHistory(),
+                                                         'title' => $folder_name->getTitle(),
+                                                         'campaign_count' => $campaign_count));
                 }
             }
 
-        }
+            $sub_folders_names = array();
+
+            foreach($sub_sub_folders as $sub_folder) {
+
+                if(!empty($sub_folder->getTitle())) {
+                    if($sub_folder->getTitle() != $dir_key) {
+                        array_push($sub_folders_names, $sub_folder->getCommunicationHistory());  
+                        
+                        array_push($directories_names, array('id' => $sub_folder->getId(),
+                                                     'title' => $sub_folder->getTitle(),
+                                                     'sub_folders' => $sub_folders_names,
+                                                     'campaign_count' => $campaign_count));
+                    }
+                }
+
+            }
+
+        }*/
 
         // Pager
         $models = $query->paginate($page, $pageSize);
