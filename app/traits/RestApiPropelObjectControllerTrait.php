@@ -136,8 +136,14 @@ trait RestApiPropelObjectControllerTrait
                 $query->where("info='" . $filter_key . "'" . " OR info IS NULL AND facebook_tab_enabled IS NULL");
             }
         } else if($campaign_info_found) {
-            $query->where("(info='priority1' OR info IS NULL) AND facebook_tab_enabled IS NULL");
-        } 
+            // Skip the default-folder restriction when a free-text search is active,
+            // so search spans campaigns across all folders. facebook_tab_enabled IS NULL
+            // is already applied via the filterBy loop above.
+            $campaignSearch = $this->request->getParam('Campaign_search');
+            if ($campaignSearch === null || trim((string) $campaignSearch) === '') {
+                $query->where("(info='priority1' OR info IS NULL) AND facebook_tab_enabled IS NULL");
+            }
+        }
 
     }
 
