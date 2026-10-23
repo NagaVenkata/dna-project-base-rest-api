@@ -26,6 +26,11 @@ function exception_error_handler($severity, $message, $file, $line)
         // This error code is not included in error_reporting
         return;
     }
+    if ($severity & (E_DEPRECATED | E_USER_DEPRECATED)) {
+        // Log deprecations (e.g. PHP 8.1+ null passed to internal functions) instead of failing the request
+        error_log("Deprecated: $message in $file:$line");
+        return true;
+    }
     throw new ErrorException($message, 0, $severity, $file, $line);
 }
 
