@@ -54,57 +54,59 @@ trait RestApiPropelObjectControllerTrait
         // Make sure the filter parameters are allowed for rest-filtering
         $orderParam = $this->request->getParam($this->order);
 
-        $orderByStatements = explode(",", $orderParam);
+        if($orderParam) {
+            $orderByStatements = explode(",", $orderParam);
 
-        $campaign_info_found = false;
+            $campaign_info_found = false;
         
-        if (get_class($this->getModel()) == 'propel\models\Campaign') {
+            if (get_class($this->getModel()) == 'propel\models\Campaign') {
 
-            $campaign_info_found  = true;
-        }
-
-
-        $dir_key = null;
-
-        foreach ($orderByStatements as $orderByStatement) {
-
-            $filter_key = null;
-
-            if(stripos($orderByStatement, 'Campaign.info') !== false) {
-
-                $dir_key = explode(" ", $orderByStatement)[2];
-
-                //if(in_array($dir_key, $dirName)) {
-
-                    $filter_key = $dir_key;
-                //}
-
+                $campaign_info_found  = true;
             }
 
-            /*if(array_search($orderByStatement, $dirName)) {
 
+            $dir_key = null;
+
+            foreach ($orderByStatements as $orderByStatement) {
+
+                $filter_key = null;
+
+                if(str_contains($orderByStatement, 'Campaign.info')) {
+
+                    $dir_key = explode(" ", $orderByStatement)[2];
+
+                    //if(in_array($dir_key, $dirName)) {
+
+                        $filter_key = $dir_key;
+                    //} 
+
+                }
+
+                /*if(array_search($orderByStatement, $dirName)) {
+    
                 /*$columnName = str_ireplace(' priority1', '', $orderByStatement);
                 $filter_key = 'priority1';
                 print_r($orderByStatement);
                 print_r($dirName[array_search($orderByStatement, $dirName)]);
                 $filter_key = $dirName[array_search($orderByStatement, $dirName)];
-            }
+                }
 
-            /*if (stripos($orderByStatement, ' priority1') !== false) {
+                /*if (stripos($orderByStatement, ' priority1') !== false) {
                 $columnName = str_ireplace(' priority1', '', $orderByStatement);
                 $filter_key = 'priority1';
-            }
+                }
 
-            if (stripos($orderByStatement, ' priority2') !== false) {
+                if (stripos($orderByStatement, ' priority2') !== false) {
                 $columnName = str_ireplace(' priority2', '', $orderByStatement);
                 $filter_key = 'priority2';
-            }
+                }
 
-            if (stripos($orderByStatement, ' priority3') !== false) {
+                if (stripos($orderByStatement, ' priority3') !== false) {
                 $columnName = str_ireplace(' priority3', '', $orderByStatement);
                 $filter_key = 'priority3';
-            }*/
+                }*/
 
+            }
         }
             
         if (!empty($filterBy) && is_array($filterBy)) {
