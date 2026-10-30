@@ -54,16 +54,15 @@ trait RestApiPropelObjectControllerTrait
         // Make sure the filter parameters are allowed for rest-filtering
         $orderParam = $this->request->getParam($this->order);
 
+        $campaign_info_found = false;
+
         if($orderParam) {
             $orderByStatements = explode(",", $orderParam);
-
-            $campaign_info_found = false;
         
             if (get_class($this->getModel()) == 'propel\models\Campaign') {
 
                 $campaign_info_found  = true;
             }
-
 
             $dir_key = null;
 
